@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Belal Amr\\source\\repos\\Advanced WMI Methods\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CBA8FF11-B86E-46AC-853A-FE8FCCDA8B51}|Advanced WMI Methods\\Advanced WMI Methods.csproj|c:\\users\\belal amr\\source\\repos\\advanced wmi methods\\advanced wmi methods\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CBA8FF11-B86E-46AC-853A-FE8FCCDA8B51}|Advanced WMI Methods\\Advanced WMI Methods.csproj|solutionrelative:advanced wmi methods\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 221,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Belal Amr\\source\\repos\\Advanced WMI Methods\\Advanced WMI Methods\\Program.cs",
+              "RelativeDocumentMoniker": "Advanced WMI Methods\\Program.cs",
+              "ToolTip": "C:\\Users\\Belal Amr\\source\\repos\\Advanced WMI Methods\\Advanced WMI Methods\\Program.cs",
+              "RelativeToolTip": "Advanced WMI Methods\\Program.cs",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAkwHYBAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-01T20:04:53.595Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

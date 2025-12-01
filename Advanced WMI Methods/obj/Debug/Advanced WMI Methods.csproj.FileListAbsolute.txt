@@ -1,0 +1,8 @@
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\bin\Debug\Advanced WMI Methods.exe.config
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\bin\Debug\Advanced WMI Methods.exe
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\bin\Debug\Advanced WMI Methods.pdb
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\obj\Debug\Advanced WMI Methods.csproj.AssemblyReference.cache
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\obj\Debug\Advanced WMI Methods.csproj.CoreCompileInputs.cache
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\obj\Debug\Advanced WMI Methods.exe
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\obj\Debug\Advanced WMI Methods.pdb
+C:\Users\Belal Amr\source\repos\Advanced WMI Methods\Advanced WMI Methods\obj\Debug\Advanced WMI Methods.exe.config
