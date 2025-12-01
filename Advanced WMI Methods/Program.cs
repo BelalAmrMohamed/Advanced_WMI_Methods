@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Management;
-using System.Threading.Tasks;
 
 namespace Advanced_WMI_Methods
 {
@@ -11,10 +9,6 @@ namespace Advanced_WMI_Methods
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("WMI advanced methods.");
-
-            Console.WriteLine(new string(' ', 20));
-
             DisplayMenuAndExecuteQuery();
 
             _ = Console.ReadKey(true);
@@ -44,28 +38,7 @@ namespace Advanced_WMI_Methods
                 info[index++].AppendLine($"Free space: {Math.Round(free, 2)} GB");
             }
             return info;
-        }
-
-        // This Method works for all queries instead of making each query a Method on its own.
-        // Method will return ALL information of the query, so you can't choose specific information
-        private static StringBuilder[] GetWindowsQuery(string query)
-        {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT * FROM {query}");
-            ManagementObjectCollection collection = searcher.Get();
-
-            StringBuilder[] info = new StringBuilder[collection.Count];
-            int index = 0;
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                info[index] = new StringBuilder();
-                foreach (PropertyData prop in obj.Properties)
-                {
-                    info[index].AppendLine($"{prop.Name}: {prop.Value}");
-                }
-                index++;
-            }
-            return info;
-        }
+        }        
 
         private static string GetComputerSystemInfo() //Win32_ComputerSystem
         {
@@ -393,7 +366,9 @@ namespace Advanced_WMI_Methods
         { 10, GetBootConfiguration },
         { 11, GetListOfFileShares },
         { 12, GetUserAccount },
-        { 13, GetBatteryInfo }
+        { 13, GetBatteryInfo },
+        { 14, GetComputerType },
+        { 15, GetProductInfo },
     };
 
             // 2. Display the Menu
