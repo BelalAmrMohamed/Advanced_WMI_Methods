@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Data;
 using System.Management;
+using System.Text;
 
 namespace Advanced_WMI_Methods
 {
@@ -14,7 +15,7 @@ namespace Advanced_WMI_Methods
             _ = Console.ReadKey(true);
         }
 
-        private static StringBuilder[] GetPartitionInfo()
+        private static StringBuilder[] GetPartitionInfo() // This is merged with 'GetLogicalDiskInfo()'
         {
             // 'collection' is for getting the number that we will set the StringBuilder with.
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk");
@@ -28,19 +29,23 @@ namespace Advanced_WMI_Methods
             {
                 info[index] = new StringBuilder();
 
-                info[index].AppendLine($"Drive: {obj["Name"]}");
-                info[index].AppendLine($"File system: {obj["FileSystem"]}");
+                info[index].AppendLine($"{"Drive:", -15} {obj["Name"]}");
+                info[index].AppendLine($"{"ID:",-15} {obj["DeviceID"]}");
+                info[index].AppendLine($"{"File system:", -15} {obj["FileSystem"]}");
+                info[index].AppendLine($"{"Description:",-15} {obj["Description"]}");
 
                 double size = Convert.ToDouble(obj["Size"]) / BytesInGB;
                 double free = Convert.ToDouble(obj["FreeSpace"]) / BytesInGB;
 
-                info[index].AppendLine($"Size: {Math.Round(size, 2)} GB");
-                info[index++].AppendLine($"Free space: {Math.Round(free, 2)} GB");
+                info[index].AppendLine($"{"Size:", -15} {Math.Round(size, 2)} GB");
+                info[index].AppendLine($"{"Free space:", -15} {Math.Round(free, 2)} GB");   
+
+                index++;
             }
             return info;
         }        
 
-        private static string GetComputerSystemInfo() //Win32_ComputerSystem
+        private static string GetComputerSystemInfo()
         {
             ManagementObjectSearcher Searcher = new ManagementObjectSearcher("SELECT * FROM Win32_ComputerSystem");
             StringBuilder info = new StringBuilder();
@@ -64,28 +69,27 @@ namespace Advanced_WMI_Methods
             {
                 switch (Convert.ToInt32(obj["DomainRole"]))
                 {
-                    case 1:
-                        type.Append("Workstation");
-                        break;
-
-                    case 2:
-                        type.Append("Backup Domain Controller");
-                        break;
-
-                    case 3:
-                        type.Append("Primary Domain Controller");
-                        break;
-
-                    case 4:
-                        type.Append("Secondary Domain Controller");
-                        break;
-
-                    case 5:
+                    case 0:
                         type.Append("Standalone Workstation");
                         break;
-
+                    case 1:
+                        type.Append("Member Workstation"); // Represents a member of a domain
+                        break;
+                    case 2:
+                        type.Append("Primary Domain Controller");
+                        break;
+                    case 3:
+                        type.Append("Backup Domain Controller");
+                        break;
+                    // Note: Roles 4 and 5 are legacy/deprecated and rarely used in modern systems.
+                    case 4:
+                        type.Append("Standalone Server"); // Standalone server that's not part of a domain
+                        break;
+                    case 5:
+                        type.Append("Member Server"); // Server that is a member of a domain
+                        break;
                     default:
-                        type.Append("Invalid type");
+                        type.Append("Role Undefined (Code: " + Convert.ToInt32(obj["DomainRole"]) + ")");
                         break;
                 }
             }
@@ -117,7 +121,7 @@ namespace Advanced_WMI_Methods
             return info.ToString();
         }
 
-        private static string GetProcessorInfo() //Win32_Processor
+        private static string GetProcessorInfo()
         {
             ManagementObjectSearcher cpuSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
             StringBuilder info = new StringBuilder();
@@ -201,25 +205,25 @@ namespace Advanced_WMI_Methods
         // Program 1: Get Logical disk info
         // query: "SELECT * FROM Win32_LogicalDisk WHERE Device ID = 'C: ' ",
         // Properties: DeviceID, Description, FreeSpace, Size
-        private static string GetLogicalDiskInfo()
-        {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk");
-            StringBuilder info = new StringBuilder();
-            const double BytesInGB = 1024.0 * 1024.0 * 1024.0;
+        //private static string GetLogicalDiskInfo()
+        //{
+        //    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk");
+        //    StringBuilder info = new StringBuilder();
+        //    const double BytesInGB = 1024.0 * 1024.0 * 1024.0;
 
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                double freeSpaceGB = Convert.ToDouble(obj["FreeSpace"]) / BytesInGB;
-                double diskSizeGB = Convert.ToDouble(obj["Size"]) / BytesInGB;
+        //    foreach (ManagementObject obj in searcher.Get())
+        //    {
+        //        double freeSpaceGB = Convert.ToDouble(obj["FreeSpace"]) / BytesInGB;
+        //        double diskSizeGB = Convert.ToDouble(obj["Size"]) / BytesInGB;
 
-                info.AppendLine($"{"Name:",-15} {obj["DeviceID"]}");
-                info.AppendLine($"{"Description:",-15} {obj["Description"]}");
+        //        info.AppendLine($"{"Name:",-15} {obj["DeviceID"]}");
+        //        info.AppendLine($"{"Description:",-15} {obj["Description"]}");
 
-                info.AppendLine($"{"Free space:",-15} {Math.Round(freeSpaceGB, 2)} GB");
-                info.AppendLine($"{"Disk size:",-15} {Math.Round(diskSizeGB, 2)} GB");
-            }
-            return info.ToString();
-        }
+        //        info.AppendLine($"{"Free space:",-15} {Math.Round(freeSpaceGB, 2)} GB");
+        //        info.AppendLine($"{"Disk size:",-15} {Math.Round(diskSizeGB, 2)} GB");
+        //    }
+        //    return info.ToString();
+        //}
 
         // Program 2: Get CD-ROM/DVD information
         // Query: Win32 CDROMDrive
@@ -276,9 +280,16 @@ namespace Advanced_WMI_Methods
             return info.ToString();
         }
 
-        private static string GetServices(string state)
+        private static string GetServices(string state = "")
         {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Service WHERE state='{state}'");
+            string whereClause;
+
+            if (!string.IsNullOrWhiteSpace(state)) 
+                whereClause = $" WHERE State='{state}'";           
+            
+            else whereClause = string.Empty;
+            
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Service{state}");
             StringBuilder info = new StringBuilder();
 
             foreach (ManagementObject obj in searcher.Get())
@@ -310,27 +321,49 @@ namespace Advanced_WMI_Methods
                     info.AppendLine($"{"Design Capacity:",-25} {obj["DesignCapacity"]} mWh");
                     info.AppendLine($"{"Full Charge Capacity:",-25} {obj["FullChargeCapacity"]} mWh");
                     info.AppendLine($"{"Estimated Run Time:",-25} {obj["EstimatedRunTime"]} minutes");
-                    info.AppendLine($"{"Remaining Capacity:",-25} {obj["RemainingCapacity"]} mWh");
+                    //info.AppendLine($"{"Remaining Capacity:",-25} {obj["RemainingCapacity"]} mWh");
                     info.AppendLine($"{"Battery Status Code:",-25} {obj["BatteryStatus"]}");
                 }
             }
             return info.ToString();
         }
 
-        private static string GetUserAccount()
+        //private static string GetUserAccount() // Make this method return an array of StringBuilder[], each index has the info of a user
+        //{
+        //    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_UserAccount");
+        //    StringBuilder info = new StringBuilder();
+
+        //    foreach (ManagementObject obj in searcher.Get())
+        //    {
+        //        info.AppendLine($"{"User name:",-15} {obj["Name"]}");
+        //        info.AppendLine($"{"Domain:",-15} {obj["Domain"]}");
+        //        info.AppendLine($"{"Status:",-15} {obj["Status"]}");
+        //        info.AppendLine($"{"Disabled:",-15} {obj["Disabled"]}");
+        //        info.AppendLine($"{"Local account:",-15} {obj["LocalAccount"]}");
+        //    }
+        //    return info.ToString();
+        //}
+
+        private static StringBuilder[] GetUserAccount() // Similar to "GetPartitionInfo()"
         {
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_UserAccount");
-            StringBuilder info = new StringBuilder();
+            ManagementObjectCollection collection = searcher.Get();
+            StringBuilder[] userAccounts = new StringBuilder[collection.Count];
+            int index = 0;
 
-            foreach (ManagementObject obj in searcher.Get())
+            foreach (ManagementObject obj in collection)
             {
-                info.AppendLine($"{"User name:",-15} {obj["Name"]}");
-                info.AppendLine($"{"Domain:",-15} {obj["Domain"]}");
-                info.AppendLine($"{"Status:",-15} {obj["Status"]}");
-                info.AppendLine($"{"Disabled:",-15} {obj["Disabled"]}");
-                info.AppendLine($"{"Local account:",-15} {obj["LocalAccount"]}");
+                userAccounts[index] = new StringBuilder();
+
+                userAccounts[index].AppendLine($"{"User name:",-15} {obj["Name"]}");
+                userAccounts[index].AppendLine($"{"Domain:",-15} {obj["Domain"]}");
+                userAccounts[index].AppendLine($"{"Status:",-15} {obj["Status"]}");
+                userAccounts[index].AppendLine($"{"Disabled:",-15} {obj["Disabled"]}");
+                userAccounts[index].AppendLine($"{"Local account:",-15} {obj["LocalAccount"]}");
+
+                index++;
             }
-            return info.ToString();
+            return userAccounts;
         }
 
         private static string GetPartitionInfoString()
@@ -348,6 +381,22 @@ namespace Advanced_WMI_Methods
             return finalOutput.ToString();            
         }
 
+        private static string GetUserAccountString()
+        {
+            // Call the original method which returns StringBuilder[]
+            StringBuilder[] partitionArray = GetUserAccount();
+
+            // Concatenate all StringBuilder objects into one string
+            StringBuilder finalOutput = new StringBuilder();
+            foreach (StringBuilder sb in partitionArray)
+            {
+                finalOutput.AppendLine(sb.ToString());
+                finalOutput.AppendLine(new string('-', 40));
+            }
+            return finalOutput.ToString();
+
+        }
+
         private static void DisplayMenuAndExecuteQuery()
         {
             // 1. Map Menu Options to Methods using a Dictionary of Delegates (Func<string>)
@@ -361,14 +410,14 @@ namespace Advanced_WMI_Methods
         { 5, GetDesktopInfo },
         { 6, GetAllDesktopInfo },
         { 7, GetMemoryInformation },
-        { 8, GetLogicalDiskInfo },
+        //{ 8, GetLogicalDiskInfo },
+        { 8, GetProductInfo },
         { 9, GET_CD_RomInfo },
         { 10, GetBootConfiguration },
         { 11, GetListOfFileShares },
-        { 12, GetUserAccount },
+        { 12, GetUserAccountString },
         { 13, GetBatteryInfo },
         { 14, GetComputerType },
-        { 15, GetProductInfo },
     };
 
             // 2. Display the Menu
@@ -388,12 +437,12 @@ namespace Advanced_WMI_Methods
             }
 
             // Add the special case method
-            Console.WriteLine("[14] GetServices (Requires state: Running/Stopped)");
+            Console.WriteLine("[15] GetServices (Requires state: Running/Stopped)");
             Console.WriteLine("[ 0] Exit");
             Console.WriteLine("---------------------------------------------");
 
             // 3. Get and Process User Choice
-            Console.Write("Enter your choice (0-14): ");
+            Console.Write("Enter your choice (0-15): ");
             string input = Console.ReadLine();
 
             if (int.TryParse(input, out int choice))
@@ -410,12 +459,12 @@ namespace Advanced_WMI_Methods
                     string result = menuOptions[choice].Invoke();
                     Console.WriteLine(result);
                 }
-                else if (choice == 14)
+                else if (choice == 15)
                 {
                     // Handle the method that requires an argument (GetServices)
-                    Console.Write("Enter service state ('running' or 'stopped'): ");
-                    string state = Console.ReadLine().ToLowerInvariant();
-                    if (state == "running" || state == "stopped")
+                    Console.Write("Enter service state ('running', 'stopped', or leave empty): ");
+                    string state = Console.ReadLine().ToLowerInvariant() ?? "";
+                    if (state == "running" || state == "stopped" || state == "")
                     {
                         Console.WriteLine("\n--- Running Query: GetServices ---");
                         string result = GetServices(state);
